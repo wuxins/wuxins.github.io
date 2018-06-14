@@ -87,12 +87,12 @@
 <meta property="og:site_name" content="上善若水，夫唯不爭，故無尤">
 <meta property="og:description" content="HashMap Key/Value 结构 线程不安全 一般Key用String类型  String类为final，hashcode()计算是根据字符数组的每个元素，能保证同一个String会得到同一个hashcode。   数据结构  1.7之前，数组（Entry）+ 链表 Entry，数组，地址连续，大小固定，查询快。包含key、value、hash、next等数据。 链表，为了节省空间，链表在">
 <meta property="og:locale" content="default">
-<meta property="og:image" content="http://www.smartcoding.xyz/website/images/concurrenthashmap.png">
-<meta property="og:updated_time" content="2018-06-14T01:27:40.797Z">
+<meta property="og:image" content="http://yoursite.com/images/concurrenthashmap.png">
+<meta property="og:updated_time" content="2018-06-14T10:26:56.079Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="HashMap">
 <meta name="twitter:description" content="HashMap Key/Value 结构 线程不安全 一般Key用String类型  String类为final，hashcode()计算是根据字符数组的每个元素，能保证同一个String会得到同一个hashcode。   数据结构  1.7之前，数组（Entry）+ 链表 Entry，数组，地址连续，大小固定，查询快。包含key、value、hash、next等数据。 链表，为了节省空间，链表在">
-<meta name="twitter:image" content="http://www.smartcoding.xyz/website/images/concurrenthashmap.png">
+<meta name="twitter:image" content="http://yoursite.com/images/concurrenthashmap.png">
 
 
 
@@ -372,7 +372,7 @@
 <blockquote>
 <p>1.7之前，使用分段锁，加锁基于segment（段）粒度</p>
 <pre><code>static class Segment&lt;K,V&gt; extends ReentrantLock implements Serializable 
-</code></pre><p><img src="http://www.smartcoding.xyz/website/images/concurrenthashmap.png" alt="Alt concurrenthashmap">   </p>
+</code></pre><p><img src="/images/concurrenthashmap.png" alt="Alt concurrenthashmap">   </p>
 </blockquote>
 <blockquote>
 <p>1.8，底层使用了Node数组+链表+红黑树数据结构，用synchronized的关键字</p>
@@ -545,7 +545,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-count">7</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -556,7 +556,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">2</span>
                   <span class="site-state-item-name">categories</span>
                 </a>
               </div>

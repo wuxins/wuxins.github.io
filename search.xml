@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title><![CDATA[dubbo常见问题]]></title>
+    <url>%2F2018%2F06%2F14%2Fjava-dubbo%2F</url>
+    <content type="text"><![CDATA[常见问题 什么是dubbo?12345分布式服务治理(SOA)框架功能 远程通信：NIO框架支持 集群容错：多协议、软负载、failover、地址路由 自动发现：注册中心 dubbo运行时,突然所有的zookeeper全部宕机,dubbo是否还会继续提供服务? 123可以,dubbo启动成功后会在本地生成一个cache文件。注册中心集群节点对等，一半以上活着，集群就可以用。即使全挂掉，缓存文件还存在，就不会影响已有的业务调用。服务提供者集群节点对等，任何一台挂了，集群仍可用。所有提供者都挂了，消费者无法使用，无限重连等待服务提供者恢复。 dubbo测试和生产共用一套zookeeer，怎么保证消费不冲突？ 12345678910过滤器（白名单）,自己写 , 实现filter接口服务分组 &lt;!--服务--&gt; &lt;dubbo:service group=&quot;feedback&quot; interface=&quot;com.xxx.IndexService&quot; /&gt; &lt;dubbo:service group=&quot;member&quot; interface=&quot;com.xxx.IndexService&quot; /&gt; &lt;!--引用--&gt; &lt;dubbo:reference id=&quot;feedbackIndexService&quot; group=&quot;feedback&quot; interface=&quot;com.xxx.IndexService&quot; /&gt; &lt;dubbo:reference id=&quot;memberIndexService&quot; group=&quot;member&quot; interface=&quot;com.xxx.IndexService&quot; /&gt;版本控制（多版本） &lt;dubbo:service interface=&quot;com.foo.BarService&quot; version=&quot;1.0.0&quot; /&gt; dubbo连接注册中心和直连的区别？ 12345开发、测试的时候，为了简单快速调试，绕过注册中心，直接指定服务提供者，点对点直连。如果是线上需求需要点对点，可在&lt;dubbo:reference&gt;中配置url指向提供者，将绕过注册中心，多个地址用分号隔开 &lt;dubbo:reference id=&quot;xxxService&quot;interface=&quot;com.alibaba.xxx.XxxService&quot;url=&quot;dubbo://localhost:20890&quot;/&gt;在JVM启动参数中加入-D参数映射服务地址 java -Dcom.alibaba.xxx.XxxService=dubbo://localhost:20890 dubbo如何实现软负载均衡？ 12注册中心，动态的注册和发现服务，使服务的位置透明，注册中心返回服务提供者地址给消费者，如有变更，注册中心将推送变更数据给消费者。只充当目录服务。消费者通过注册中心，获取服务提供者地址列表，基于客户端的负载均衡算法，选一台服务提供者进行调用，调用失败，再选另一台。 dubbo 负载均衡算法有哪些？ 1234RoundRobin LoadBalance （轮询算法）ConsistentHash LoadBalance（一致性Hash），相同的参数请求总是请求同一个提供者Random LoadBalance（随机）LeastActionLoadBalance（最少活跃） dubbo 安全机制如何解决？ 1234567891011通过Token令牌防止用户绕过注册中心直连，然后在注册中心上管理授权。 全局 &lt;dubbo:provider interface=&quot;&quot; token=&quot;true&quot;&gt;UUID生成随机令牌 &lt;dubbo:provider interface=&quot;&quot; token=&quot;123456&quot;&gt;固定token令牌，相当于密码。 服务级别 &lt;dubbo:service interface=&quot; &quot; token=&quot;true&quot;&gt;随机令牌 &lt;dubbo:service interface=&quot; &quot; token=&quot;123456&quot;&gt;固定密码令牌 协议级别 &lt;dubbo:protocol name=&quot;dubbo&quot; token=&quot;true&quot;&gt; &lt;dubbo:protocol name=&quot;dubbo&quot; token=&quot;123456&quot;&gt;dubbo服务黑白名单，来控制服务所允许的调用方。 zookeeer 是干什么的？ 1分布式应用程序协调服务，为分布式应用提供一致性服务的软件，包括：配置维护、域名服务、分布式同步、组服务等。]]></content>
+      <categories>
+        <category>java基础</category>
+      </categories>
+      <tags>
+        <tag>java</tag>
+      </tags>
+  </entry>
+  <entry>
     <title><![CDATA[项目（配置中心）总结]]></title>
     <url>%2F2018%2F06%2F13%2Fproject-confconter%2F</url>
     <content type="text"><![CDATA[项目背景 功能描述 音视频新特性（网络特性、本地特性）统一管理控制 12根据客户端（PC、Android、IOS）的特质（属性，比如CPU、GPU、摄像头 ...），动态下发适合客户端的音视频特性，达到用户体验效果最佳。 客户端升级统一控制 1该系统统一控制各个客户端是否升级，如果升级，那升级到的版本是多少？ 是可选升级还是强制升级 ？ 服务器地址统一管理 1从该系统统一下发给客户端，使得客户端轻量级，让各个客户端不再因为管理近50个服务器地址而烦恼。 配置公共元数据统一管理 1字典，错误码 ... 特点 必须保证高可靠 1该系统是客户端直接对接的第一个后台应用，该系统不可用，则公司整个产品不可用; 系统可水平扩展。 并发能力有要求 1该系统的并发代表公司产品的最大并发。 性能要求较高 1能快速的处理客户端获取特性、地址、升级的响应。 安全性要求 1必须对该系统提供安全性措施，避免恶意攻击导致系统崩溃。 技术实现 技术栈 1Spring + SpringMVC + Mybatis + MQ + MySQL + Canal + Redis + Dubbo + Restful API 技术细节 高可用设计 123同类型的服务（Web、dubbo）无状态、对等，部署2套或2套以上。可横向扩展、动态负载均衡，负载策略：轮询。技术手段：nginx + zookeeper。 接口隔离 12不同的接口相互隔离，互不影响。技术手段：业务线程池 + Servlet 3.0。 流控设计 12后台服务，底线是，即使穿透安全攻击，也不至于使服务宕机。技术手段：Guava RateLimiter ，令牌桶。 缓存设计 1234组件封装对数据库和缓存操作。简化客户端调用，客户端只管get key调用，不管 set。缓存全局开关，避免因缓存bug或不可用，导致整个服务不可用，运维手段后路。技术手段：Canal 实现数据库和缓存一致性。组件封装简化客户端操作，隐藏对数据源和缓存操作的细节。zookeeper客户端代码编写，实现分布式控制缓存开关。 安全设计 12关键字段带时间戳接口签名appkey 授权合法性校验 数据流设计 接口安全性流程图1接口签名 + appkey授权合法性校验]]></content>
@@ -49,10 +60,10 @@
     <url>%2F2018%2F06%2F13%2Fbigdata-arch%2F</url>
     <content type="text"><![CDATA[架构图 流程图]]></content>
       <categories>
-        <category>数据平台</category>
+        <category>项目</category>
       </categories>
       <tags>
-        <tag>数据平台</tag>
+        <tag>大数据</tag>
       </tags>
   </entry>
   <entry>
