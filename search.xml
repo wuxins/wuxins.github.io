@@ -1,9 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title><![CDATA[数据分析平台架构]]></title>
+    <url>%2F2018%2F06%2F14%2Fbigdata-arch%2F</url>
+    <content type="text"><![CDATA[架构图 流程图]]></content>
+      <categories>
+        <category>项目</category>
+      </categories>
+      <tags>
+        <tag>大数据</tag>
+      </tags>
+  </entry>
+  <entry>
     <title><![CDATA[dubbo常见问题]]></title>
     <url>%2F2018%2F06%2F14%2Fjava-dubbo%2F</url>
-    <content type="text"><![CDATA[常见问题 什么是dubbo? 12345分布式服务治理(SOA)框架功能 远程通信：NIO框架支持 集群容错：多协议、软负载、failover、地址路由 自动发现：注册中心 架构 dubbo运行时,突然所有的zookeeper全部宕机,dubbo是否还会继续提供服务? 123可以,dubbo启动成功后会在本地生成一个cache文件。注册中心集群节点对等，一半以上活着，集群就可以用。即使全挂掉，缓存文件还存在，就不会影响已有的业务调用。服务提供者集群节点对等，任何一台挂了，集群仍可用。所有提供者都挂了，消费者无法使用，无限重连等待服务提供者恢复。 dubbo测试和生产共用一套zookeeer，怎么保证消费不冲突？ 12345678910过滤器（白名单）,自己写 , 实现filter接口服务分组 &lt;!--服务--&gt; &lt;dubbo:service group=&quot;feedback&quot; interface=&quot;com.xxx.IndexService&quot; /&gt; &lt;dubbo:service group=&quot;member&quot; interface=&quot;com.xxx.IndexService&quot; /&gt; &lt;!--引用--&gt; &lt;dubbo:reference id=&quot;feedbackIndexService&quot; group=&quot;feedback&quot; interface=&quot;com.xxx.IndexService&quot; /&gt; &lt;dubbo:reference id=&quot;memberIndexService&quot; group=&quot;member&quot; interface=&quot;com.xxx.IndexService&quot; /&gt;版本控制（多版本） &lt;dubbo:service interface=&quot;com.foo.BarService&quot; version=&quot;1.0.0&quot; /&gt; dubbo连接注册中心和直连的区别？ 12345开发、测试的时候，为了简单快速调试，绕过注册中心，直接指定服务提供者，点对点直连。如果是线上需求需要点对点，可在&lt;dubbo:reference&gt;中配置url指向提供者，将绕过注册中心，多个地址用分号隔开 &lt;dubbo:reference id=&quot;xxxService&quot;interface=&quot;com.alibaba.xxx.XxxService&quot;url=&quot;dubbo://localhost:20890&quot;/&gt;在JVM启动参数中加入-D参数映射服务地址 java -Dcom.alibaba.xxx.XxxService=dubbo://localhost:20890 dubbo如何实现软负载均衡？ 12注册中心，动态的注册和发现服务，使服务的位置透明，注册中心返回服务提供者地址给消费者，如有变更，注册中心将推送变更数据给消费者。只充当目录服务。消费者通过注册中心，获取服务提供者地址列表，基于客户端的负载均衡算法，选一台服务提供者进行调用，调用失败，再选另一台。 dubbo 负载均衡算法有哪些？ 1234RoundRobin LoadBalance （轮询算法）ConsistentHash LoadBalance（一致性Hash），相同的参数请求总是请求同一个提供者Random LoadBalance（随机）LeastActionLoadBalance（最少活跃） dubbo 安全机制如何解决？ 1234567891011通过Token令牌防止用户绕过注册中心直连，然后在注册中心上管理授权。 全局 &lt;dubbo:provider interface=&quot;&quot; token=&quot;true&quot;&gt;UUID生成随机令牌 &lt;dubbo:provider interface=&quot;&quot; token=&quot;123456&quot;&gt;固定token令牌，相当于密码。 服务级别 &lt;dubbo:service interface=&quot; &quot; token=&quot;true&quot;&gt;随机令牌 &lt;dubbo:service interface=&quot; &quot; token=&quot;123456&quot;&gt;固定密码令牌 协议级别 &lt;dubbo:protocol name=&quot;dubbo&quot; token=&quot;true&quot;&gt; &lt;dubbo:protocol name=&quot;dubbo&quot; token=&quot;123456&quot;&gt;dubbo服务黑白名单，来控制服务所允许的调用方。 zookeeer 是干什么的？ 1分布式应用程序协调服务，为分布式应用提供一致性服务的软件，包括：配置维护、域名服务、分布式同步、组服务等。]]></content>
+    <content type="text"><![CDATA[常见问题 什么是dubbo?12345分布式服务治理(SOA)框架功能 远程通信：NIO框架支持 集群容错：多协议、软负载、failover、地址路由 自动发现：注册中心 dubbo运行时,突然所有的zookeeper全部宕机,dubbo是否还会继续提供服务? 123可以,dubbo启动成功后会在本地生成一个cache文件。注册中心集群节点对等，一半以上活着，集群就可以用。即使全挂掉，缓存文件还存在，就不会影响已有的业务调用。服务提供者集群节点对等，任何一台挂了，集群仍可用。所有提供者都挂了，消费者无法使用，无限重连等待服务提供者恢复。 dubbo测试和生产共用一套zookeeer，怎么保证消费不冲突？ 12345678910过滤器（白名单）,自己写 , 实现filter接口服务分组 &lt;!--服务--&gt; &lt;dubbo:service group=&quot;feedback&quot; interface=&quot;com.xxx.IndexService&quot; /&gt; &lt;dubbo:service group=&quot;member&quot; interface=&quot;com.xxx.IndexService&quot; /&gt; &lt;!--引用--&gt; &lt;dubbo:reference id=&quot;feedbackIndexService&quot; group=&quot;feedback&quot; interface=&quot;com.xxx.IndexService&quot; /&gt; &lt;dubbo:reference id=&quot;memberIndexService&quot; group=&quot;member&quot; interface=&quot;com.xxx.IndexService&quot; /&gt;版本控制（多版本） &lt;dubbo:service interface=&quot;com.foo.BarService&quot; version=&quot;1.0.0&quot; /&gt; dubbo连接注册中心和直连的区别？ 12345开发、测试的时候，为了简单快速调试，绕过注册中心，直接指定服务提供者，点对点直连。如果是线上需求需要点对点，可在&lt;dubbo:reference&gt;中配置url指向提供者，将绕过注册中心，多个地址用分号隔开 &lt;dubbo:reference id=&quot;xxxService&quot;interface=&quot;com.alibaba.xxx.XxxService&quot;url=&quot;dubbo://localhost:20890&quot;/&gt;在JVM启动参数中加入-D参数映射服务地址 java -Dcom.alibaba.xxx.XxxService=dubbo://localhost:20890 dubbo如何实现软负载均衡？ 12注册中心，动态的注册和发现服务，使服务的位置透明，注册中心返回服务提供者地址给消费者，如有变更，注册中心将推送变更数据给消费者。只充当目录服务。消费者通过注册中心，获取服务提供者地址列表，基于客户端的负载均衡算法，选一台服务提供者进行调用，调用失败，再选另一台。 dubbo 负载均衡算法有哪些？ 1234RoundRobin LoadBalance （轮询算法）ConsistentHash LoadBalance（一致性Hash），相同的参数请求总是请求同一个提供者Random LoadBalance（随机）LeastActionLoadBalance（最少活跃） dubbo 安全机制如何解决？ 1234567891011通过Token令牌防止用户绕过注册中心直连，然后在注册中心上管理授权。 全局 &lt;dubbo:provider interface=&quot;&quot; token=&quot;true&quot;&gt;UUID生成随机令牌 &lt;dubbo:provider interface=&quot;&quot; token=&quot;123456&quot;&gt;固定token令牌，相当于密码。 服务级别 &lt;dubbo:service interface=&quot; &quot; token=&quot;true&quot;&gt;随机令牌 &lt;dubbo:service interface=&quot; &quot; token=&quot;123456&quot;&gt;固定密码令牌 协议级别 &lt;dubbo:protocol name=&quot;dubbo&quot; token=&quot;true&quot;&gt; &lt;dubbo:protocol name=&quot;dubbo&quot; token=&quot;123456&quot;&gt;dubbo服务黑白名单，来控制服务所允许的调用方。 zookeeer 是干什么的？ 1分布式应用程序协调服务，为分布式应用提供一致性服务的软件，包括：配置维护、域名服务、分布式同步、组服务等。]]></content>
       <categories>
         <category>java基础</category>
       </categories>
@@ -53,17 +64,6 @@
       </categories>
       <tags>
         <tag>java</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title><![CDATA[数据分析平台架构]]></title>
-    <url>%2F2018%2F06%2F13%2Fbigdata-arch%2F</url>
-    <content type="text"><![CDATA[架构图 流程图]]></content>
-      <categories>
-        <category>项目</category>
-      </categories>
-      <tags>
-        <tag>大数据</tag>
       </tags>
   </entry>
   <entry>
