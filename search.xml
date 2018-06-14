@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title><![CDATA[项目（配置中心）总结]]></title>
+    <url>%2F2018%2F06%2F13%2Fproject-confconter%2F</url>
+    <content type="text"><![CDATA[项目背景 功能描述 音视频新特性（网络特性、本地特性）统一管理控制 12根据客户端（PC、Android、IOS）的特质（属性，比如CPU、GPU、摄像头 ...），动态下发适合客户端的音视频特性，达到用户体验效果最佳。 客户端升级统一控制 1该系统统一控制各个客户端是否升级，如果升级，那升级到的版本是多少？ 是可选升级还是强制升级 ？ 服务器地址统一管理 1从该系统统一下发给客户端，使得客户端轻量级，让各个客户端不再因为管理近50个服务器地址而烦恼。 配置公共元数据统一管理 1字典，错误码 ... 特点 必须保证高可靠 1该系统是客户端直接对接的第一个后台应用，该系统不可用，则公司整个产品不可用; 系统可水平扩展。 并发能力有要求 1该系统的并发代表公司产品的最大并发。 性能要求较高 1能快速的处理客户端获取特性、地址、升级的响应。 安全性要求 1必须对该系统提供安全性措施，避免恶意攻击导致系统崩溃。 技术实现 技术栈 1Spring + SpringMVC + Mybatis + MQ + MySQL + Canal + Redis + Dubbo + Restful API 技术细节 高可用设计 123同类型的服务（Web、dubbo）无状态、对等，部署2套或2套以上。可横向扩展、动态负载均衡，负载策略：轮询。技术手段：nginx + zookeeper。 接口隔离 12不同的接口相互隔离，互不影响。技术手段：业务线程池 + Servlet 3.0。 流控设计 12后台服务，底线是，即使穿透安全攻击，也不至于使服务宕机。技术手段：Guava RateLimiter ，令牌桶。 缓存设计 1234组件封装对数据库和缓存操作。简化客户端调用，客户端只管get key调用，不管 set。缓存全局开关，避免因缓存bug或不可用，导致整个服务不可用，运维手段后路。技术手段：Canal 实现数据库和缓存一致性。组件封装简化客户端操作，隐藏对数据源和缓存操作的细节。zookeeper客户端代码编写，实现分布式控制缓存开关。 安全设计 12关键字段带时间戳接口签名appkey 授权合法性校验 数据流设计 接口安全性流程图1接口签名 + appkey授权合法性校验]]></content>
+      <categories>
+        <category>项目</category>
+      </categories>
+      <tags>
+        <tag>项目</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[乱弹缓存]]></title>
+    <url>%2F2018%2F06%2F13%2Fjava-cache%2F</url>
+    <content type="text"><![CDATA[缓存崩溃 描述 由于缓存层承载过多请求，有效的保护了存储层。但是因为缓存层由于某些原因整体不能提供服务，于是所有请求都会重新回源到存储层，存储层因调用量剧增，直接崩溃。 解决方法 高可用（主备or主从架构） 限流、降级 缓存穿透 描述 缓存穿透将导致不存在的数据每次请求都要落到存储层查询，失去了保护存储层的意义。 解决方法 空对象，缓存有意义的值。 分散Key失效时间，缓存超时时间分散。 缓存热点 描述 某些key是热点key，访问频率非常高。甚至服务启动就会访问频率极高。 解决方法 提前预热。 缓存经验之谈 设计好的缓存数据模型，能简单模型就简单模型 能本地缓存的就本地缓存 尽量设置缓存的超时时间 尽量分散缓存的超时时间，加随机数，避免缓存穿透 要做缓存开关，流控，降级等措施，原则：不要因为缓存穿透、崩溃等问题，把整个系统搞崩了 热点数据尽量提前预热 缓存封装 Cache get组件封装 12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061626364/** * Get value of specify key * * @param key K * @param expireSeconds K expire seconds * @param cacheLoader Sor loader * @return Value */ public &lt;V&gt; V get(final String key, final int expireSeconds, TypeReference&lt;V&gt; clazz, CacheLoader&lt;V&gt; cacheLoader) &#123; // remote cache switch control if (!cacheSwitch.isRemoteCacheEnabled()) &#123; return cacheLoader.load(); &#125; // load data from cache String value = redisOperator.get(key); if (null != value) &#123; logger.debug("Hit cache key:&#123;&#125;,value:&#123;&#125;", key, value); return CacheValueParser.parseObject(value, clazz); &#125; // processing cache snow-slip Lock lock = striped.get(key); try &#123; lock.lock(); // lock value = redisOperator.get(key); if (null != value) &#123; logger.debug("Hit cache key:&#123;&#125;,value:&#123;&#125;", key, value); return CacheValueParser.parseObject(value, clazz); &#125; // load data from SOR V data = cacheLoader.load(); final String remoteVal; final int expireSec; if (null == data) &#123; // processing cache breakdown remoteVal = JSON.toJSONString(NULL_STRING); expireSec = 0 == expireSeconds ? 0 : expireSeconds / 2 + 1; &#125; else &#123; remoteVal = JSON.toJSONString(data); expireSec = expireSeconds; &#125; // write cache( sync or async is a problem ) asyncCacheExecutor.submit(new Runnable() &#123; @Override public void run() &#123; try &#123; redisOperator.put(key, remoteVal, expireSec); &#125; catch (Exception ex) &#123; // log , send warning mail logger.error("Write cache key:" + key + " fail .", ex); &#125; &#125; &#125;); return data; &#125; finally &#123; lock.unlock(); &#125; &#125; 客户端调用 1234567List&lt;LocalDeviceFeaturesVo&gt; value = simpleCache.get(CacheKeys.CONF_LOCAL_FEATURES, 60 * 60, new TypeReference&lt;List&lt;LocalDeviceFeaturesVo&gt;&gt;() &#123;&#125;, new CacheLoader&lt;List&lt;LocalDeviceFeaturesVo&gt;&gt;() &#123; @Override public List&lt;LocalDeviceFeaturesVo&gt; load() &#123; return fdpDao.getLocalDeviceFeatures(); &#125; &#125;);]]></content>
+      <categories>
+        <category>java基础</category>
+      </categories>
+      <tags>
+        <tag>缓存</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[乱弹性能调优]]></title>
+    <url>%2F2018%2F06%2F13%2Fjava-optimize%2F</url>
+    <content type="text"><![CDATA[调优思路 了解当前的现象 有点赤脚医生问诊的意思 是否能重现 能重现的问题，定位难度都不大，至少可以 debug 。暂时不能重现，让测试想办法重现。 了解当前资源的使用情况 CPU、内存、磁盘、IO、硬盘 … 想办法找到性能瓶颈点 a. 日志分析b. 工具分析（jstack，jmap …），产看调用栈，对象的使用情况，有没有死锁，锁住的资源有哪些?c. 工具慢查询查看（durid 数据源工具） 针对性能瓶颈点进行调优 调优手段 能缓存的缓存，能本地缓存就尽量用本地缓存 能异步的就异步 注重日志打印质量，减少垃圾日志打印 调优常见场景 响应报文太大，可能会造成响应时间慢，网络IO占用高。可以考虑数据压缩手段。 业务操作中，同步转异步，异步转同步，合并结果 通过设计减少RPC调用、数据库操作次数]]></content>
+      <categories>
+        <category>java基础</category>
+      </categories>
+      <tags>
+        <tag>性能调优</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[HashMap]]></title>
+    <url>%2F2018%2F06%2F13%2Fjava-hashmap%2F</url>
+    <content type="text"><![CDATA[HashMap Key/Value 结构 线程不安全 一般Key用String类型 String类为final，hashcode()计算是根据字符数组的每个元素，能保证同一个String会得到同一个hashcode。 数据结构 1.7之前，数组（Entry）+ 链表 Entry，数组，地址连续，大小固定，查询快。包含key、value、hash、next等数据。 链表，为了节省空间，链表在内存中存储地址不连续，可以更好的利用内存空间。 1.8,数组（Entry）+ 链表 + 红黑树 当链表长度 &gt; 8 , 链表转为红黑树 ,加快检索速度。 扩容机制 负载因子（loadFactor）默认 0.75负载临界值（threshold）= loadFactor * loadFactor。capacity 容量大小 ， 2的n次方 ，左移运算。put元素是，size &gt;= threshold ，调用resize()方法，扩容，2倍。 ConcurrentHashMap 解决HashTable 和 Collections.synchronizedMap() 效率低下的问题 1.7之前，使用分段锁，加锁基于segment（段）粒度 static class Segment&lt;K,V&gt; extends ReentrantLock implements Serializable 1.8，底层使用了Node数组+链表+红黑树数据结构，用synchronized的关键字]]></content>
+      <categories>
+        <category>java基础</category>
+      </categories>
+      <tags>
+        <tag>java</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[数据分析平台架构]]></title>
+    <url>%2F2018%2F06%2F13%2Fbigdata-arch%2F</url>
+    <content type="text"><![CDATA[架构图 流程图]]></content>
+      <categories>
+        <category>数据平台</category>
+      </categories>
+      <tags>
+        <tag>数据平台</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Hexo 入门]]></title>
+    <url>%2F2018%2F06%2F12%2Fhello-world%2F</url>
+    <content type="text"><![CDATA[Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick Start Create a new post1$ hexo new "My New Post" More info: Writing Run server1$ hexo server More info: Server Generate static files1$ hexo generate More info: Generating Deploy to remote sites1$ hexo deploy More info: Deployment]]></content>
+      <tags>
+        <tag>Hexo</tag>
+      </tags>
+  </entry>
+</search>
