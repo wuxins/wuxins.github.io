@@ -249,6 +249,195 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/06/14/java-cache/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="18676780050@163.com">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/header.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="上善若水，夫唯不爭，故無尤">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/06/14/java-cache/" itemprop="url">乱弹缓存</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-06-14T22:11:28+08:00">
+                2018-06-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java基础/" itemprop="url" rel="index">
+                    <span itemprop="name">java基础</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="缓存崩溃"><a href="#缓存崩溃" class="headerlink" title="缓存崩溃"></a>缓存崩溃</h2><ol>
+<li>描述<blockquote>
+<p>由于缓存层承载过多请求，有效的保护了存储层。但是因为缓存层由于某些原因整体不能提供服务，于是所有请求都会重新回源到存储层，存储层因调用量剧增，直接崩溃。</p>
+</blockquote>
+</li>
+<li>解决方法<ul>
+<li>高可用（主备or主从架构）</li>
+<li>限流、降级</li>
+</ul>
+</li>
+</ol>
+<h2 id="缓存穿透"><a href="#缓存穿透" class="headerlink" title="缓存穿透"></a>缓存穿透</h2><ol>
+<li>描述<blockquote>
+<p>缓存穿透将导致不存在的数据每次请求都要落到存储层查询，失去了保护存储层的意义。</p>
+</blockquote>
+</li>
+<li>解决方法<ul>
+<li>空对象，缓存有意义的值。</li>
+<li>分散Key失效时间，缓存超时时间分散。</li>
+</ul>
+</li>
+</ol>
+<h2 id="缓存热点"><a href="#缓存热点" class="headerlink" title="缓存热点"></a>缓存热点</h2><ol>
+<li>描述<blockquote>
+<p>某些key是热点key，访问频率非常高。甚至服务启动就会访问频率极高。</p>
+</blockquote>
+</li>
+<li>解决方法<ul>
+<li>提前预热。</li>
+</ul>
+</li>
+</ol>
+<h2 id="缓存经验之谈"><a href="#缓存经验之谈" class="headerlink" title="缓存经验之谈"></a>缓存经验之谈</h2><ol>
+<li>设计好的缓存数据模型，能简单模型就简单模型</li>
+<li>能本地缓存的就本地缓存</li>
+<li>尽量设置缓存的超时时间</li>
+<li>尽量分散缓存的超时时间，加随机数，避免缓存穿透</li>
+<li>要做缓存开关，流控，降级等措施，原则：不要因为缓存穿透、崩溃等问题，把整个系统搞崩了</li>
+<li>热点数据尽量提前预热</li>
+</ol>
+<h2 id="缓存封装"><a href="#缓存封装" class="headerlink" title="缓存封装"></a>缓存封装</h2><ol>
+<li>Cache get组件封装</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * Get value of specify key</span></span><br><span class="line"><span class="comment">  *</span></span><br><span class="line"><span class="comment">  * <span class="doctag">@param</span> key           K</span></span><br><span class="line"><span class="comment">  * <span class="doctag">@param</span> expireSeconds K expire seconds</span></span><br><span class="line"><span class="comment">  * <span class="doctag">@param</span> cacheLoader   Sor loader</span></span><br><span class="line"><span class="comment">  * <span class="doctag">@return</span> Value</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"> <span class="keyword">public</span> &lt;V&gt; <span class="function">V <span class="title">get</span><span class="params">(<span class="keyword">final</span> String key, <span class="keyword">final</span> <span class="keyword">int</span> expireSeconds, TypeReference&lt;V&gt; clazz, CacheLoader&lt;V&gt; cacheLoader)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">     <span class="comment">// remote cache switch control</span></span><br><span class="line">     <span class="keyword">if</span> (!cacheSwitch.isRemoteCacheEnabled()) &#123;</span><br><span class="line">         <span class="keyword">return</span> cacheLoader.load();</span><br><span class="line">     &#125;</span><br><span class="line"></span><br><span class="line">     <span class="comment">// load data from cache</span></span><br><span class="line">     String value = redisOperator.get(key);</span><br><span class="line">     <span class="keyword">if</span> (<span class="keyword">null</span> != value) &#123;</span><br><span class="line">         logger.debug(<span class="string">"Hit cache key:&#123;&#125;,value:&#123;&#125;"</span>, key, value);</span><br><span class="line">         <span class="keyword">return</span> CacheValueParser.parseObject(value, clazz);</span><br><span class="line">     &#125;</span><br><span class="line"></span><br><span class="line">     <span class="comment">// processing cache snow-slip</span></span><br><span class="line">     Lock lock = striped.get(key);</span><br><span class="line">     <span class="keyword">try</span> &#123;</span><br><span class="line">         lock.lock(); <span class="comment">// lock</span></span><br><span class="line"></span><br><span class="line">         value = redisOperator.get(key);</span><br><span class="line">         <span class="keyword">if</span> (<span class="keyword">null</span> != value) &#123;</span><br><span class="line">             logger.debug(<span class="string">"Hit cache key:&#123;&#125;,value:&#123;&#125;"</span>, key, value);</span><br><span class="line">             <span class="keyword">return</span> CacheValueParser.parseObject(value, clazz);</span><br><span class="line">         &#125;</span><br><span class="line"></span><br><span class="line">         <span class="comment">// load data from SOR</span></span><br><span class="line">         V data = cacheLoader.load();</span><br><span class="line"></span><br><span class="line">         <span class="keyword">final</span> String remoteVal;</span><br><span class="line">         <span class="keyword">final</span> <span class="keyword">int</span> expireSec;</span><br><span class="line">         <span class="keyword">if</span> (<span class="keyword">null</span> == data) &#123; <span class="comment">// processing cache breakdown</span></span><br><span class="line">             remoteVal = JSON.toJSONString(NULL_STRING);</span><br><span class="line">             expireSec = <span class="number">0</span> == expireSeconds ? <span class="number">0</span> : expireSeconds / <span class="number">2</span> + <span class="number">1</span>;</span><br><span class="line">         &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">             remoteVal = JSON.toJSONString(data);</span><br><span class="line">             expireSec = expireSeconds;</span><br><span class="line">         &#125;</span><br><span class="line"></span><br><span class="line">         <span class="comment">// write cache( sync or async is a problem )</span></span><br><span class="line">         asyncCacheExecutor.submit(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">             <span class="meta">@Override</span></span><br><span class="line">             <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                 <span class="keyword">try</span> &#123;</span><br><span class="line">                     redisOperator.put(key, remoteVal, expireSec);</span><br><span class="line">                 &#125; <span class="keyword">catch</span> (Exception ex) &#123; <span class="comment">// log , send warning mail</span></span><br><span class="line">                     logger.error(<span class="string">"Write cache key:"</span> + key + <span class="string">" fail ."</span>, ex);</span><br><span class="line">                 &#125;</span><br><span class="line">             &#125;</span><br><span class="line">         &#125;);</span><br><span class="line"></span><br><span class="line">         <span class="keyword">return</span> data;</span><br><span class="line">     &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">         lock.unlock();</span><br><span class="line">     &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li>客户端调用</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">List&lt;LocalDeviceFeaturesVo&gt; value = simpleCache.get(CacheKeys.CONF_LOCAL_FEATURES, <span class="number">60</span> * <span class="number">60</span>, <span class="keyword">new</span> TypeReference&lt;List&lt;LocalDeviceFeaturesVo&gt;&gt;() &#123;&#125;,</span><br><span class="line">             <span class="keyword">new</span> CacheLoader&lt;List&lt;LocalDeviceFeaturesVo&gt;&gt;() &#123;</span><br><span class="line">                 <span class="meta">@Override</span></span><br><span class="line">                 <span class="function"><span class="keyword">public</span> List&lt;LocalDeviceFeaturesVo&gt; <span class="title">load</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                     <span class="keyword">return</span> fdpDao.getLocalDeviceFeatures();</span><br><span class="line">                 &#125;</span><br><span class="line">             &#125;);</span><br></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/06/14/bigdata-arch/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -715,195 +904,6 @@
 <h2 id="数据流设计"><a href="#数据流设计" class="headerlink" title="数据流设计"></a>数据流设计</h2><p><img src="/images/conf-workflow.png" alt="Alt conf-workflow"></p>
 <h2 id="接口安全性流程图"><a href="#接口安全性流程图" class="headerlink" title="接口安全性流程图"></a>接口安全性流程图</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">接口签名 + appkey授权合法性校验</span><br></pre></td></tr></table></figure>
 <p><img src="/images/conf-sign.png" alt="Alt conf-sign"></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/06/13/java-cache/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="18676780050@163.com">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/header.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="上善若水，夫唯不爭，故無尤">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/06/13/java-cache/" itemprop="url">乱弹缓存</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-06-13T16:39:28+08:00">
-                2018-06-13
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java基础/" itemprop="url" rel="index">
-                    <span itemprop="name">java基础</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="缓存崩溃"><a href="#缓存崩溃" class="headerlink" title="缓存崩溃"></a>缓存崩溃</h2><ol>
-<li>描述<blockquote>
-<p>由于缓存层承载过多请求，有效的保护了存储层。但是因为缓存层由于某些原因整体不能提供服务，于是所有请求都会重新回源到存储层，存储层因调用量剧增，直接崩溃。</p>
-</blockquote>
-</li>
-<li>解决方法<ul>
-<li>高可用（主备or主从架构）</li>
-<li>限流、降级</li>
-</ul>
-</li>
-</ol>
-<h2 id="缓存穿透"><a href="#缓存穿透" class="headerlink" title="缓存穿透"></a>缓存穿透</h2><ol>
-<li>描述<blockquote>
-<p>缓存穿透将导致不存在的数据每次请求都要落到存储层查询，失去了保护存储层的意义。</p>
-</blockquote>
-</li>
-<li>解决方法<ul>
-<li>空对象，缓存有意义的值。</li>
-<li>分散Key失效时间，缓存超时时间分散。</li>
-</ul>
-</li>
-</ol>
-<h2 id="缓存热点"><a href="#缓存热点" class="headerlink" title="缓存热点"></a>缓存热点</h2><ol>
-<li>描述<blockquote>
-<p>某些key是热点key，访问频率非常高。甚至服务启动就会访问频率极高。</p>
-</blockquote>
-</li>
-<li>解决方法<ul>
-<li>提前预热。</li>
-</ul>
-</li>
-</ol>
-<h2 id="缓存经验之谈"><a href="#缓存经验之谈" class="headerlink" title="缓存经验之谈"></a>缓存经验之谈</h2><ol>
-<li>设计好的缓存数据模型，能简单模型就简单模型</li>
-<li>能本地缓存的就本地缓存</li>
-<li>尽量设置缓存的超时时间</li>
-<li>尽量分散缓存的超时时间，加随机数，避免缓存穿透</li>
-<li>要做缓存开关，流控，降级等措施，原则：不要因为缓存穿透、崩溃等问题，把整个系统搞崩了</li>
-<li>热点数据尽量提前预热</li>
-</ol>
-<h2 id="缓存封装"><a href="#缓存封装" class="headerlink" title="缓存封装"></a>缓存封装</h2><ol>
-<li>Cache get组件封装</li>
-</ol>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * Get value of specify key</span></span><br><span class="line"><span class="comment">  *</span></span><br><span class="line"><span class="comment">  * <span class="doctag">@param</span> key           K</span></span><br><span class="line"><span class="comment">  * <span class="doctag">@param</span> expireSeconds K expire seconds</span></span><br><span class="line"><span class="comment">  * <span class="doctag">@param</span> cacheLoader   Sor loader</span></span><br><span class="line"><span class="comment">  * <span class="doctag">@return</span> Value</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"> <span class="keyword">public</span> &lt;V&gt; <span class="function">V <span class="title">get</span><span class="params">(<span class="keyword">final</span> String key, <span class="keyword">final</span> <span class="keyword">int</span> expireSeconds, TypeReference&lt;V&gt; clazz, CacheLoader&lt;V&gt; cacheLoader)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">     <span class="comment">// remote cache switch control</span></span><br><span class="line">     <span class="keyword">if</span> (!cacheSwitch.isRemoteCacheEnabled()) &#123;</span><br><span class="line">         <span class="keyword">return</span> cacheLoader.load();</span><br><span class="line">     &#125;</span><br><span class="line"></span><br><span class="line">     <span class="comment">// load data from cache</span></span><br><span class="line">     String value = redisOperator.get(key);</span><br><span class="line">     <span class="keyword">if</span> (<span class="keyword">null</span> != value) &#123;</span><br><span class="line">         logger.debug(<span class="string">"Hit cache key:&#123;&#125;,value:&#123;&#125;"</span>, key, value);</span><br><span class="line">         <span class="keyword">return</span> CacheValueParser.parseObject(value, clazz);</span><br><span class="line">     &#125;</span><br><span class="line"></span><br><span class="line">     <span class="comment">// processing cache snow-slip</span></span><br><span class="line">     Lock lock = striped.get(key);</span><br><span class="line">     <span class="keyword">try</span> &#123;</span><br><span class="line">         lock.lock(); <span class="comment">// lock</span></span><br><span class="line"></span><br><span class="line">         value = redisOperator.get(key);</span><br><span class="line">         <span class="keyword">if</span> (<span class="keyword">null</span> != value) &#123;</span><br><span class="line">             logger.debug(<span class="string">"Hit cache key:&#123;&#125;,value:&#123;&#125;"</span>, key, value);</span><br><span class="line">             <span class="keyword">return</span> CacheValueParser.parseObject(value, clazz);</span><br><span class="line">         &#125;</span><br><span class="line"></span><br><span class="line">         <span class="comment">// load data from SOR</span></span><br><span class="line">         V data = cacheLoader.load();</span><br><span class="line"></span><br><span class="line">         <span class="keyword">final</span> String remoteVal;</span><br><span class="line">         <span class="keyword">final</span> <span class="keyword">int</span> expireSec;</span><br><span class="line">         <span class="keyword">if</span> (<span class="keyword">null</span> == data) &#123; <span class="comment">// processing cache breakdown</span></span><br><span class="line">             remoteVal = JSON.toJSONString(NULL_STRING);</span><br><span class="line">             expireSec = <span class="number">0</span> == expireSeconds ? <span class="number">0</span> : expireSeconds / <span class="number">2</span> + <span class="number">1</span>;</span><br><span class="line">         &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">             remoteVal = JSON.toJSONString(data);</span><br><span class="line">             expireSec = expireSeconds;</span><br><span class="line">         &#125;</span><br><span class="line"></span><br><span class="line">         <span class="comment">// write cache( sync or async is a problem )</span></span><br><span class="line">         asyncCacheExecutor.submit(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">             <span class="meta">@Override</span></span><br><span class="line">             <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                 <span class="keyword">try</span> &#123;</span><br><span class="line">                     redisOperator.put(key, remoteVal, expireSec);</span><br><span class="line">                 &#125; <span class="keyword">catch</span> (Exception ex) &#123; <span class="comment">// log , send warning mail</span></span><br><span class="line">                     logger.error(<span class="string">"Write cache key:"</span> + key + <span class="string">" fail ."</span>, ex);</span><br><span class="line">                 &#125;</span><br><span class="line">             &#125;</span><br><span class="line">         &#125;);</span><br><span class="line"></span><br><span class="line">         <span class="keyword">return</span> data;</span><br><span class="line">     &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">         lock.unlock();</span><br><span class="line">     &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
-<ol start="2">
-<li>客户端调用</li>
-</ol>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">List&lt;LocalDeviceFeaturesVo&gt; value = simpleCache.get(CacheKeys.CONF_LOCAL_FEATURES, <span class="number">60</span> * <span class="number">60</span>, <span class="keyword">new</span> TypeReference&lt;List&lt;LocalDeviceFeaturesVo&gt;&gt;() &#123;&#125;,</span><br><span class="line">             <span class="keyword">new</span> CacheLoader&lt;List&lt;LocalDeviceFeaturesVo&gt;&gt;() &#123;</span><br><span class="line">                 <span class="meta">@Override</span></span><br><span class="line">                 <span class="function"><span class="keyword">public</span> List&lt;LocalDeviceFeaturesVo&gt; <span class="title">load</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                     <span class="keyword">return</span> fdpDao.getLocalDeviceFeatures();</span><br><span class="line">                 &#125;</span><br><span class="line">             &#125;);</span><br></pre></td></tr></table></figure>
 
           
         
