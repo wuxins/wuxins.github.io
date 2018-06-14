@@ -79,18 +79,20 @@
 
 
 
-<meta name="description" content="常见问题 什么是dubbo?12345分布式服务治理(SOA)框架功能  远程通信：NIO框架支持  集群容错：多协议、软负载、failover、地址路由  自动发现：注册中心    dubbo运行时,突然所有的zookeeper全部宕机,dubbo是否还会继续提供服务? 123可以,dubbo启动成功后会在本地生成一个cache文件。注册中心集群节点对等，一半以上活着，集群就可以用。即使全挂掉，">
+<meta name="description" content="常见问题 什么是dubbo? 12345分布式服务治理(SOA)框架功能  远程通信：NIO框架支持  集群容错：多协议、软负载、failover、地址路由  自动发现：注册中心 架构  dubbo运行时,突然所有的zookeeper全部宕机,dubbo是否还会继续提供服务? 123可以,dubbo启动成功后会在本地生成一个cache文件。注册中心集群节点对等，一半以上活着，集群就可以用。即使全挂">
 <meta name="keywords" content="java">
 <meta property="og:type" content="article">
 <meta property="og:title" content="dubbo常见问题">
 <meta property="og:url" content="http://yoursite.com/2018/06/14/java-dubbo/index.html">
 <meta property="og:site_name" content="上善若水，夫唯不爭，故無尤">
-<meta property="og:description" content="常见问题 什么是dubbo?12345分布式服务治理(SOA)框架功能  远程通信：NIO框架支持  集群容错：多协议、软负载、failover、地址路由  自动发现：注册中心    dubbo运行时,突然所有的zookeeper全部宕机,dubbo是否还会继续提供服务? 123可以,dubbo启动成功后会在本地生成一个cache文件。注册中心集群节点对等，一半以上活着，集群就可以用。即使全挂掉，">
+<meta property="og:description" content="常见问题 什么是dubbo? 12345分布式服务治理(SOA)框架功能  远程通信：NIO框架支持  集群容错：多协议、软负载、failover、地址路由  自动发现：注册中心 架构  dubbo运行时,突然所有的zookeeper全部宕机,dubbo是否还会继续提供服务? 123可以,dubbo启动成功后会在本地生成一个cache文件。注册中心集群节点对等，一半以上活着，集群就可以用。即使全挂">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2018-06-14T08:39:23.342Z">
+<meta property="og:image" content="http://yoursite.com/images/dubbo-arch.png">
+<meta property="og:updated_time" content="2018-06-14T10:44:31.987Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="dubbo常见问题">
-<meta name="twitter:description" content="常见问题 什么是dubbo?12345分布式服务治理(SOA)框架功能  远程通信：NIO框架支持  集群容错：多协议、软负载、failover、地址路由  自动发现：注册中心    dubbo运行时,突然所有的zookeeper全部宕机,dubbo是否还会继续提供服务? 123可以,dubbo启动成功后会在本地生成一个cache文件。注册中心集群节点对等，一半以上活着，集群就可以用。即使全挂掉，">
+<meta name="twitter:description" content="常见问题 什么是dubbo? 12345分布式服务治理(SOA)框架功能  远程通信：NIO框架支持  集群容错：多协议、软负载、failover、地址路由  自动发现：注册中心 架构  dubbo运行时,突然所有的zookeeper全部宕机,dubbo是否还会继续提供服务? 123可以,dubbo启动成功后会在本地生成一个cache文件。注册中心集群节点对等，一半以上活着，集群就可以用。即使全挂">
+<meta name="twitter:image" content="http://yoursite.com/images/dubbo-arch.png">
 
 
 
@@ -343,10 +345,10 @@
 
       
         <h2 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h2><ol>
-<li>什么是dubbo?<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">分布式服务治理(SOA)框架</span><br><span class="line">功能</span><br><span class="line">  远程通信：NIO框架支持</span><br><span class="line">  集群容错：多协议、软负载、failover、地址路由</span><br><span class="line">  自动发现：注册中心</span><br></pre></td></tr></table></figure>
+<li><p>什么是dubbo?</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">分布式服务治理(SOA)框架</span><br><span class="line">功能</span><br><span class="line">  远程通信：NIO框架支持</span><br><span class="line">  集群容错：多协议、软负载、failover、地址路由</span><br><span class="line">  自动发现：注册中心</span><br></pre></td></tr></table></figure>
+<p>架构<br><img src="/images/dubbo-arch.png" alt="Alt dubbo-arch"></p>
 </li>
-</ol>
-<ol start="2">
 <li><p>dubbo运行时,突然所有的zookeeper全部宕机,dubbo是否还会继续提供服务?</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">可以,dubbo启动成功后会在本地生成一个cache文件。</span><br><span class="line">注册中心集群节点对等，一半以上活着，集群就可以用。即使全挂掉，缓存文件还存在，就不会影响已有的业务调用。</span><br><span class="line">服务提供者集群节点对等，任何一台挂了，集群仍可用。所有提供者都挂了，消费者无法使用，无限重连等待服务提供者恢复。</span><br></pre></td></tr></table></figure>
 </li>
